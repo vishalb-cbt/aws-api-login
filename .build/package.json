@@ -1,9 +1,0 @@
-{
-  "devDependencies": {
-    "esbuild": "^0.20.2",
-    "serverless-esbuild": "^1.52.1",
-    "serverless-offline": "^13.3.3",
-    "serverless-plugin-typescript": "^2.1.5",
-    "typescript": "^5.4.3"
-  }
-}

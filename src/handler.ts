@@ -1,7 +1,6 @@
 "use strict";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { Login, validateLoginSchema } from "./schema/Login";
-import { ApiError } from "./utils/ApiError";
 
 export const hello: APIGatewayProxyHandlerV2 = async (event) => {
   return {
@@ -34,8 +33,15 @@ export const login: APIGatewayProxyHandlerV2 = async (event) => {
 
     const { error } = validateLoginSchema(loginCredentials);
 
+    let apiRes: object;
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+
     if (error) {
-      return {
+      apiRes = {
+        headers,
         statusCode: 400,
         body: JSON.stringify({ error }),
       };
@@ -46,6 +52,7 @@ export const login: APIGatewayProxyHandlerV2 = async (event) => {
     if (!result) {
       return {
         statusCode: 400,
+        headers,
         body: JSON.stringify({
           statusCode: 400,
           message: "invalid username or password",
@@ -53,17 +60,16 @@ export const login: APIGatewayProxyHandlerV2 = async (event) => {
       };
     }
 
-    return {
+    apiRes = {
       statusCode: 200,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({
         statusCode: 200,
         message: "logged in successfully",
       }),
     };
+
+    return apiRes;
   } catch (error) {
     return {
       statusCode: 400,
