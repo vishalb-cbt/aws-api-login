@@ -10,8 +10,10 @@
     "typescript": "^5.4.3"
   },
   "dependencies": {
+    "@types/xlsx": "^0.0.36",
     "aws-sdk": "^2.1586.0",
-    "joi": "^17.12.2"
+    "joi": "^17.12.2",
+    "xlsx": "^0.18.5"
   },
   "name": "aws-api-post",
   "version": "1.0.0",

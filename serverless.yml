@@ -7,23 +7,28 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: ap-south-1
-  iam:
-    role:
-      statements:
-        - Effect: "Allow"
-          Action:
-            - "dynamodb:PutItem"
-            - "dynamodb:Query"
-            - "dynamodb:Scan"
-            - "dynamodb:GetItem"
-            - "dynamodb:PutItem"
-            - "dynamodb:UpdateItem"
-            - "dynamodb:DeleteItem"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+      Resource:
+        - "arn:aws:s3:::vishal-s3-bucket-assignment/*"
 
-          Resource:
-            - Fn::GetAtt:
-                - vishalDynamoDBTableA
-                - Arn
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:PutItem"
+        - "dynamodb:Query"
+        - "dynamodb:Scan"
+        - "dynamodb:GetItem"
+        - "dynamodb:PutItem"
+        - "dynamodb:UpdateItem"
+        - "dynamodb:DeleteItem"
+        - "dynamodb:BatchWriteItem"
+      Resource:
+        - "arn:aws:dynamodb:ap-south-1:738146172566:table/vishal-xlsx-to-db-assignment"
+        - Fn:GetAtt:
+          - vishalDynamoDBTableA
+          - Arn
 
 plugins:
   - serverless-plugin-typescript
@@ -52,8 +57,13 @@ functions:
   getEmployeeById:
     handler: src/dbHandler.getEmployee
   getAllEmployees:
-    handler: src/dbHandler.getAllEmployees
-
+  handler: src/dbHandler.getAllEmployees
+  s3Handler:
+    handler: src/s3Handler.pushItemToDynamoDB
+    events:
+      - s3:
+          bucket: vishal-s3-bucket-assignment
+          event: s3:ObjectCreated:*
 resources:
   Resources:
     vishalDynamoDBTableA:
