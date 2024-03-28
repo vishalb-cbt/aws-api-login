@@ -10,7 +10,7 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - s3:GetObject
+        - s3:*
       Resource:
         - "arn:aws:s3:::vishal-s3-bucket-assignment/*"
 
@@ -27,15 +27,42 @@ provider:
       Resource:
         - "arn:aws:dynamodb:ap-south-1:738146172566:table/vishal-xlsx-to-db-assignment"
         - Fn:GetAtt:
-          - vishalDynamoDBTableA
-          - Arn
+            - vishalDynamoDBTableA
+            - Arn
 
 plugins:
   - serverless-plugin-typescript
-  - serverless-dynamodb-local
+  # - serverless-dynamodb-local
   - serverless-offline
 
 functions:
+  S3AddItem:
+    handler: src/s3BucketOperations.addItem
+    events:
+      - httpApi:
+          path: /s3BktOpr/addItem
+          method: post
+
+  S3ListItemsFromBucket:
+    handler: src/s3BucketOperations.listItemsByBucketName
+    events:
+      - httpApi:
+          method: get
+          path: /list-items
+
+  readFileFromS3:
+    handler: src/s3BucketOperations.readFileFromS3
+    events:
+      - httpApi:
+          method: get
+          path: /read-item
+  deleteFileFromS3:
+    handler: src/s3BucketOperations.deleteFileFromS3
+    events:
+      - httpApi:
+          method: delete
+          path: /delete-item
+
   login:
     handler: src/handler.login
     events:
@@ -55,11 +82,11 @@ functions:
   deleteEmployee:
     handler: src/dbHandler.deleteEmployee
   getEmployeeById:
-    handler: src/dbHandler.getEmployee
+  handler: src/dbHandler.getEmployee
   getAllEmployees:
   handler: src/dbHandler.getAllEmployees
   s3Handler:
-    handler: src/s3Handler.pushItemToDynamoDB
+    handler: src/s3Trigger.pushItemToDynamoDB
     events:
       - s3:
           bucket: vishal-s3-bucket-assignment
