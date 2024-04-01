@@ -1,7 +1,7 @@
 import { DynamoDB } from "aws-sdk";
 const dynamoDB = new DynamoDB.DocumentClient();
 
-const TABLE_NAME = "vishalDynamoDBTableA";
+const TABLE_NAME = "vishal-xlsx-to-db-assignment";
 
 // Insert operation
 type Employee = {

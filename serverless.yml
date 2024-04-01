@@ -8,27 +8,17 @@ provider:
   runtime: nodejs18.x
   region: ap-south-1
   iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - s3:*
-      Resource:
-        - "arn:aws:s3:::vishal-s3-bucket-assignment/*"
+    # - Effect: Allow
+    #   Action:
+    #     - s3:*
+    #   Resource:
+    #     - "arn:aws:s3:::vishal-s3-bucket-assignment/*"
 
     - Effect: "Allow"
       Action:
-        - "dynamodb:PutItem"
-        - "dynamodb:Query"
-        - "dynamodb:Scan"
-        - "dynamodb:GetItem"
-        - "dynamodb:PutItem"
-        - "dynamodb:UpdateItem"
-        - "dynamodb:DeleteItem"
-        - "dynamodb:BatchWriteItem"
+        - "dynamodb:*"
       Resource:
-        - "arn:aws:dynamodb:ap-south-1:738146172566:table/vishal-xlsx-to-db-assignment"
-        - Fn:GetAtt:
-            - vishalDynamoDBTableA
-            - Arn
+        - "arn:aws:dynamodb:ap-south-1:738146172566:table/vishal-dynamo-db-assignment"
 
 plugins:
   - serverless-plugin-typescript
@@ -36,78 +26,97 @@ plugins:
   - serverless-offline
 
 functions:
-  S3AddItem:
-    handler: src/s3BucketOperations.addItem
+  signup:
+    handler: src/userPool/signUp.handler
     events:
       - httpApi:
-          path: /s3BktOpr/addItem
+          path: /signup
           method: post
-
-  S3ListItemsFromBucket:
-    handler: src/s3BucketOperations.listItemsByBucketName
-    events:
-      - httpApi:
-          method: get
-          path: /list-items
-
-  readFileFromS3:
-    handler: src/s3BucketOperations.readFileFromS3
-    events:
-      - httpApi:
-          method: get
-          path: /read-item
-  deleteFileFromS3:
-    handler: src/s3BucketOperations.deleteFileFromS3
-    events:
-      - httpApi:
-          method: delete
-          path: /delete-item
-
   login:
-    handler: src/handler.login
+    handler: src/userPool/login.handler
     events:
       - httpApi:
-          path: /users/login
+          path: /login
           method: post
-  hello:
-    handler: src/dbHandler.hello
+  addUserToDataBase:
+    handler: src/userPool/addUserToDataBase.handler
     events:
-      - httpApi:
-          path: /users/create
-          method: get
-  addEmployee:
-    handler: src/dbHandler.addEmployee
-  updateEmployee:
-    handler: src/dbHandler.updateEmployee
-  deleteEmployee:
-    handler: src/dbHandler.deleteEmployee
-  getEmployeeById:
-  handler: src/dbHandler.getEmployee
-  getAllEmployees:
-  handler: src/dbHandler.getAllEmployees
-  s3Handler:
-    handler: src/s3Trigger.pushItemToDynamoDB
-    events:
-      - s3:
-          bucket: vishal-s3-bucket-assignment
-          event: s3:ObjectCreated:*
-resources:
-  Resources:
-    vishalDynamoDBTableA:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: vishalDynamoDBTableA
-        AttributeDefinitions:
-          - AttributeName: employeeType
-            AttributeType: S
-          - AttributeName: employeeId
-            AttributeType: S
+      - cognitoUserPool:
+          pool: ravi-DemoPage
+          trigger: PostConfirmation
+          existing: true
+#   S3AddItem:
+#     handler: src/s3BucketOperations.addItem
+#     events:
+#       - httpApi:
+#           path: /s3BktOpr/addItem
+#           method: post
 
-        KeySchema:
-          - AttributeName: employeeType
-            KeyType: HASH
-          - AttributeName: employeeId
-            KeyType: RANGE
-        ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+#   S3ListItemsFromBucket:
+#     handler: src/s3BucketOperations.listItemsByBucketName
+#     events:
+#       - httpApi:
+#           method: get
+#           path: /list-items
+
+#   readFileFromS3:
+#     handler: src/s3BucketOperations.readFileFromS3
+#     events:
+#       - httpApi:
+#           method: get
+#           path: /read-item
+#   deleteFileFromS3:
+#     handler: src/s3BucketOperations.deleteFileFromS3
+#     events:
+#       - httpApi:
+#           method: delete
+#           path: /delete-item
+
+#   login:
+#     handler: src/handler.login
+#     events:
+#       - httpApi:
+#           path: /users/login
+#           method: post
+#   hello:
+#     handler: src/dbHandler.hello
+#     events:
+#       - httpApi:
+#           path: /users/create
+#           method: get
+#   addEmployee:
+#     handler: src/dbHandler.addEmployee
+#   updateEmployee:
+#     handler: src/dbHandler.updateEmployee
+#   deleteEmployee:
+#     handler: src/dbHandler.deleteEmployee
+#   getEmployeeById:
+#   handler: src/dbHandler.getEmployee
+#   getAllEmployees:
+#   handler: src/dbHandler.getAllEmployees
+#   s3Handler:
+#     handler: src/s3Trigger.pushItemToDynamoDB
+#     events:
+#       - s3:
+#           bucket: vishal-s3-bucket-assignment
+#           event: s3:ObjectCreated:*
+# resources:
+#   Resources:
+#     vishalDynamoDBTableA:
+#       Type: AWS::DynamoDB::Table
+#       Properties:
+#         TableName: vishalDynamoDBTableA
+#         AttributeDefinitions:
+#           - AttributeName: employeeType
+#             AttributeType: S
+#           - AttributeName: employeeId
+#             AttributeType: S
+
+#         KeySchema:
+#           - AttributeName: employeeType
+#             KeyType: HASH
+#           - AttributeName: employeeId
+#             KeyType: RANGE
+#         ProvisionedThroughput:
+#           ReadCapacityUnits: 5
+#           WriteCapacityUnits: 5
