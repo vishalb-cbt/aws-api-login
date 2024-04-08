@@ -1,28 +1,25 @@
 service: vishal-dynamodb
-
 frameworkVersion: "3"
 configValidationMode: error
-
 provider:
   name: aws
   runtime: nodejs18.x
   region: ap-south-1
+  httpApi:
+    cors: true
   iamRoleStatements:
-    # - Effect: Allow
-    #   Action:
-    #     - s3:*
-    #   Resource:
-    #     - "arn:aws:s3:::vishal-s3-bucket-assignment/*"
-
-    - Effect: "Allow"
+    - Effect: Allow
       Action:
-        - "dynamodb:*"
+        - dynamodb:*
       Resource:
-        - "arn:aws:dynamodb:ap-south-1:738146172566:table/vishal-dynamo-db-assignment"
-
+        - arn:aws:dynamodb:ap-south-1:738146172566:table/vishal-dynamo-db-assignment
+    - Effect: Allow
+      Action:
+        - cognito-idp:*
+      Resource:
+        - arn:aws:cognito-idp:ap-south-1:738146172566:userpool/ap-south-1_4SBsLHW2M
 plugins:
   - serverless-plugin-typescript
-  # - serverless-dynamodb-local
   - serverless-offline
 
 functions:
@@ -38,6 +35,7 @@ functions:
       - httpApi:
           path: /login
           method: post
+    
   addUserToDataBase:
     handler: src/userPool/addUserToDataBase.handler
     events:
@@ -45,78 +43,16 @@ functions:
           pool: ravi-DemoPage
           trigger: PostConfirmation
           existing: true
-#   S3AddItem:
-#     handler: src/s3BucketOperations.addItem
-#     events:
-#       - httpApi:
-#           path: /s3BktOpr/addItem
-#           method: post
-
-#   S3ListItemsFromBucket:
-#     handler: src/s3BucketOperations.listItemsByBucketName
-#     events:
-#       - httpApi:
-#           method: get
-#           path: /list-items
-
-#   readFileFromS3:
-#     handler: src/s3BucketOperations.readFileFromS3
-#     events:
-#       - httpApi:
-#           method: get
-#           path: /read-item
-#   deleteFileFromS3:
-#     handler: src/s3BucketOperations.deleteFileFromS3
-#     events:
-#       - httpApi:
-#           method: delete
-#           path: /delete-item
-
-#   login:
-#     handler: src/handler.login
-#     events:
-#       - httpApi:
-#           path: /users/login
-#           method: post
-#   hello:
-#     handler: src/dbHandler.hello
-#     events:
-#       - httpApi:
-#           path: /users/create
-#           method: get
-#   addEmployee:
-#     handler: src/dbHandler.addEmployee
-#   updateEmployee:
-#     handler: src/dbHandler.updateEmployee
-#   deleteEmployee:
-#     handler: src/dbHandler.deleteEmployee
-#   getEmployeeById:
-#   handler: src/dbHandler.getEmployee
-#   getAllEmployees:
-#   handler: src/dbHandler.getAllEmployees
-#   s3Handler:
-#     handler: src/s3Trigger.pushItemToDynamoDB
-#     events:
-#       - s3:
-#           bucket: vishal-s3-bucket-assignment
-#           event: s3:ObjectCreated:*
-# resources:
-#   Resources:
-#     vishalDynamoDBTableA:
-#       Type: AWS::DynamoDB::Table
-#       Properties:
-#         TableName: vishalDynamoDBTableA
-#         AttributeDefinitions:
-#           - AttributeName: employeeType
-#             AttributeType: S
-#           - AttributeName: employeeId
-#             AttributeType: S
-
-#         KeySchema:
-#           - AttributeName: employeeType
-#             KeyType: HASH
-#           - AttributeName: employeeId
-#             KeyType: RANGE
-#         ProvisionedThroughput:
-#           ReadCapacityUnits: 5
-#           WriteCapacityUnits: 5
+  customMessage:
+    handler: src/userPool/customMesssage.handler
+    events:
+      - cognitoUserPool:
+          pool: ravi-DemoPage
+          trigger: CustomMessage
+          existing: true
+  verifySignUp:
+    handler: src/userPool/verfySignUp.handler
+    events:
+      - httpApi:
+          path: /verfy-signup
+          method: post

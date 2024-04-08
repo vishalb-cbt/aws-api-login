@@ -1,12 +1,6 @@
 import { S3CreateEvent } from "aws-lambda";
 import { S3, DynamoDB } from "aws-sdk";
 import { read, utils } from "xlsx";
-// export const pushItemToDynamoDB = async (event: S3CreateEvent) => {
-//   const bucketName = event.Records[0].s3.bucket.name;
-//   const awsRegion = event.Records[0].awsRegion;
-//   const key = event.Records[0].s3.object.key;
-//   const objectUrl = `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${key}`;
-// };
 
 const s3 = new S3({ apiVersion: "2006-03-01" });
 const dynamoDB = new DynamoDB.DocumentClient({ region: "ap-south-1" });

@@ -1,4 +1,7 @@
-import { PostConfirmationConfirmSignUpTriggerEvent } from "aws-lambda";
+import {
+  PostConfirmationConfirmSignUpTriggerEvent,
+  PostConfirmationTriggerHandler,
+} from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
 const dynamoDB = new DynamoDB.DocumentClient();
 type userInfo = {
@@ -11,7 +14,7 @@ type userInfo = {
 
 const TABLE_NAME = "vishal-dynamo-db-assignment";
 
-export const handler = async (
+export const handler: PostConfirmationTriggerHandler = async (
   event: PostConfirmationConfirmSignUpTriggerEvent
 ) => {
   const { email, email_verified, name, picture, id } = event.request
@@ -28,9 +31,5 @@ export const handler = async (
       __typeName: "User",
     },
   };
-  const res = await dynamoDB.put(params).promise();
-  return {
-    statusCode: 200,
-    body: JSON.stringify(res),
-  };
+  await dynamoDB.put(params).promise();
 };

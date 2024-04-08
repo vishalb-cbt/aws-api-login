@@ -1,5 +1,3 @@
-// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: Apache-2.0
 
 import {
   SignUpCommand,
@@ -16,7 +14,6 @@ type signUpRequestBody = {
   picture: string;
 };
 
-/** snippet-start:[javascript.v3.cognito-idp.actions.SignUp] */
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const { username, password, email, name, picture } = JSON.parse(
     event.body!
@@ -40,4 +37,3 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     body: JSON.stringify(res),
   };
 };
-/** snippet-end:[javascript.v3.cognito-idp.actions.SignUp] */

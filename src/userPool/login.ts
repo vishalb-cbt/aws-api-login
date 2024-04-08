@@ -4,6 +4,7 @@ import {
   InitiateAuthCommand,
   GetUserCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
+
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
 const dynamoDB = new DynamoDB.DocumentClient();
@@ -15,7 +16,6 @@ type loginRequestBody = {
 
 const TABLE_NAME = "vishal-dynamo-db-assignment";
 
-/** snippet-start:[javascript.v3.cognito-idp.actions.InitiateAuth] */
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   const { username, password } = JSON.parse(event.body!) as loginRequestBody;
   const client = new CognitoIdentityProviderClient({});
@@ -29,18 +29,34 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     ClientId: "arkqkja1b7uoqm2darbssfklk",
   });
 
-  const res = await client.send(command);
-  const getUserCmd = new GetUserCommand({
-    AccessToken: res.AuthenticationResult?.AccessToken,
-  });
+  try {
+    const res = await client.send(command);
+    console.log(res);
 
-  const user = await client.send(getUserCmd);
+    const getUserCmd = new GetUserCommand({
+      AccessToken: res.AuthenticationResult?.AccessToken,
+    });
 
-  const params = {
-    TableName: TABLE_NAME,
-    Key: { __typeName: "User", username: user.Username },
-  };
-  const dbResponse = await dynamoDB.get(params).promise();
-  return { statusCode: 200, body: JSON.stringify(dbResponse.Item) };
+    const user = await client.send(getUserCmd);
+
+    const params = {
+      TableName: TABLE_NAME,
+      Key: { __typeName: "User", username: user.Username },
+    };
+    const { Item } = await dynamoDB.get(params).promise();
+
+    const { AuthenticationResult } = res;
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ AuthenticationResult, user: Item }),
+    };
+  } catch (error) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        error,
+      }),
+    };
+  }
 };
-/** snippet-end:[javascript.v3.cognito-idp.actions.InitiateAuth] */
